@@ -1,0 +1,75 @@
+{
+  "name": "async-base-iterator",
+  "version": "0.0.0",
+  "description": "Basic iterator for [async][] library that handles asynchronous and synchronous functions, also emits `beforeEach` and `afterEach` events. Used in [async-control][].",
+  "repository": "tunnckoCore/async-base-iterator",
+  "author": "Charlike Mike Reagent <@tunnckoCore> (http://www.tunnckocore.tk)",
+  "precommit.silent": true,
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "standard && node test.js"
+  },
+  "dependencies": {
+    "component-emitter": "^1.2.0",
+    "extend-shallow": "^2.0.1",
+    "lazy-cache": "^1.0.3",
+    "relike": "^1.0.3",
+    "then-callback": "^1.0.2"
+  },
+  "devDependencies": {
+    "assertit": "^0.1.0",
+    "async": "^1.5.2",
+    "pre-commit": "*"
+  },
+  "files": [
+    "index.js",
+    "utils.js"
+  ],
+  "keywords": [
+    "after",
+    "after-each",
+    "async",
+    "async-base-iterator",
+    "base",
+    "basic",
+    "before",
+    "before-each",
+    "control",
+    "each",
+    "emit",
+    "fn",
+    "func",
+    "function",
+    "handle",
+    "hook",
+    "hooks",
+    "iterator",
+    "lib",
+    "sync"
+  ],
+  "verb": {
+    "toc": false,
+    "layout": "empty",
+    "tasks": [
+      "readme"
+    ],
+    "related": {
+      "list": [
+        "relike",
+        "letta",
+        "async",
+        "then-callback",
+        "iterator-async",
+        "iterator-promise"
+      ]
+    },
+    "reflinks": [
+      "async",
+      "async-control"
+    ],
+    "lint": {
+      "reflinks": true
+    }
+  }
+}
