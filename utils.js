@@ -40,11 +40,11 @@ utils.iteratorFactory = function iteratorFactory (self) {
   var context = options.context
 
   return function iterator (fn, next) {
-    self.emit('beforeEach', self, options, fn)
+    self.emit('beforeEach', fn, context, self)
 
     var func = options.letta && typeof options.letta === 'function' ? options.letta : utils.relike
     var done = function done (err, res) {
-      self.emit('afterEach', err, res, fn)
+      self.emit('afterEach', fn, err, res)
       if (err instanceof Error) {
         self.emit('error', err, fn)
         return options.settle ? next(null, err) : next(err)
