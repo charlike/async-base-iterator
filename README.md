@@ -16,31 +16,79 @@ npm i async-base-iterator --save
 const asyncBaseIterator = require('async-base-iterator')
 ```
 
-### [AsyncBaseIterator](index.js#L19)
-
+### [AsyncBaseIterator](index.js#L42)
 > Initialize `AsyncBaseIterator` with `options`.
 
 **Params**
 
-* `options` **{Object=}**    
+* `options` **{Object=}**: pass `beforeEach` and `afterEach` hooks or `settle`.    
 
-### [.defaultOptions](index.js#L34)
+**Example**
 
-> Setting default options. Settle `false`.
+```js
+var ctrl = require('async')
+var AsyncBaseIterator = require('async-base-iterator').AsyncBaseIterator
+var base = new AsyncBaseIterator({ settle: true })
 
-**Params**
+base.on('beforeEach', function (fn) {
+  console.log('before each:', fn.name)
+})
+base.on('afterEach', function (fn, err, res) {
+  console.log('after each:', fn.name)
+  console.log('err?', err)
+  console.log('result of', fn.name, 'is', res)
+})
 
-* `options` **{Object=}**    
-* `returns` **{AsyncBaseIterator}**: instance for chaining  
+ctrl.mapSeries([
+  function one () { return 1 },
+  function two (done) { done(null, 2) },
+  function three () { return 3 },
+], base.makeIterator(), console.log) // => [1, 2, 3]
+```
 
-### [.makeIterator](index.js#L48)
-
+### [.makeIterator](index.js#L105)
 > Make iterator to be passed to [async][] lib.
 
 **Params**
 
-* `options` **{Object=}**    
-* `returns` **{Function}**: iterator for `async.map` and `async.mapSeries`  
+* `options` **{Object=}**: pass `beforeEach` and `afterEach` hooks or `settle`.    
+* `returns` **{Function}**: iterator for `async.map` and `async.mapSeries`.  
+
+**Events**
+
+* `beforeEach` with signature `fn, context, base`  
+* `afterEach` with signature `fn, err, res`  
+* `error` with signature `err, fn`  
+
+**Example**
+
+```js
+var ctrl = require('async')
+var base = require('async-base-iterator')
+var iterator = base.makeIterator({
+  settle: true,
+  beforeEach: function beforeEach (fn) {
+    console.log(fn)
+  }
+})
+
+function throwError () {
+  throw new Error('two err')
+}
+
+ctrl.mapSeries([
+  function one () { return 1 },
+  function two () {
+    throwError()
+    return 2
+  },
+  function three (cb) { cb(null, 3) }
+], iterator, function (err, res) {
+  // `err` is always `null` when `settle: true`
+  console.log(err) // => null
+  console.log(res) // => [1, [Error: two err], 3]
+})
+```
 
 ## Related
 * [async](https://www.npmjs.com/package/async): Higher-order functions and common patterns for asynchronous code | [homepage](https://github.com/caolan/async)
@@ -58,8 +106,8 @@ But before doing anything, please read the [CONTRIBUTING.md](./CONTRIBUTING.md) 
 
 [![tunnckoCore.tk][author-www-img]][author-www-url] [![keybase tunnckoCore][keybase-img]][keybase-url] [![tunnckoCore npm][author-npm-img]][author-npm-url] [![tunnckoCore twitter][author-twitter-img]][author-twitter-url] [![tunnckoCore github][author-github-img]][author-github-url]
 
-[async-control]: https://github.com/hybridables/async-control
 [async]: https://github.com/caolan/async
+[async-control]: https://github.com/hybridables/async-control
 
 [npmjs-url]: https://www.npmjs.com/package/async-base-iterator
 [npmjs-img]: https://img.shields.io/npm/v/async-base-iterator.svg?label=async-base-iterator
