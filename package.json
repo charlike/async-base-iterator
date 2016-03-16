@@ -13,6 +13,7 @@
   "dependencies": {
     "component-emitter": "^1.2.0",
     "extend-shallow": "^2.0.1",
+    "isarray": "^1.0.0",
     "lazy-cache": "^1.0.3",
     "relike": "^1.0.3",
     "then-callback": "^1.0.2"

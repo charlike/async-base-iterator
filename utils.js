@@ -26,6 +26,7 @@ require = utils // eslint-disable-line no-undef, no-native-reassign
 
 require('component-emitter', 'Emitter')
 require('extend-shallow', 'extend')
+require('isarray', 'isArray')
 require('relike')
 require('then-callback', 'then')
 
@@ -38,6 +39,7 @@ require = fn // eslint-disable-line no-undef, no-native-reassign
 utils.iteratorFactory = function iteratorFactory (self) {
   var options = self.options
   var context = options.context
+  var params = utils.isArray(options.params) && options.params || []
 
   return function iterator (fn, next) {
     self.emit('beforeEach', fn, context, self)
@@ -52,7 +54,9 @@ utils.iteratorFactory = function iteratorFactory (self) {
       next(null, res)
     }
 
-    utils.then(func.call(context, fn, done)).then(done)
+    var args = [fn].concat(params)
+    args.push(done)
+    utils.then(func.apply(context, args)).then(done)
   }
 }
 
