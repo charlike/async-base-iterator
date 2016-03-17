@@ -38,7 +38,7 @@ require = fn // eslint-disable-line no-undef, no-native-reassign
 
 utils.iteratorFactory = function iteratorFactory (self) {
   var options = self.options
-  var context = options.context
+  var context = options.context || self
   var params = utils.isArray(options.params) && options.params || []
 
   return function iterator (fn, next) {
