@@ -52,6 +52,7 @@
     "sync"
   ],
   "verb": {
+    "run": true,
     "toc": false,
     "layout": "empty",
     "tasks": [
@@ -64,7 +65,9 @@
         "async",
         "then-callback",
         "iterator-async",
-        "iterator-promise"
+        "iterator-promise",
+        "async-simple-iterator",
+        "async-control"
       ]
     },
     "reflinks": [

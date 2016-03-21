@@ -1,6 +1,6 @@
 # [async-base-iterator][author-www-url] [![npmjs.com][npmjs-img]][npmjs-url] [![The MIT License][license-img]][license-url] 
 
-> Basic iterator for [async][] library that handles asynchronous and synchronous functions, also emits `beforeEach` and `afterEach` events. Used in [async-control][].
+> Basic iterator for [async][] library that handles async and synchronous functions, also emits `beforeEach`, `afterEach` and `error` events. Using [async-simple-iterator][] and used in [async-control][].
 
 [![code climate][codeclimate-img]][codeclimate-url] [![standard code style][standard-img]][standard-url] [![travis build status][travis-img]][travis-url] [![coverage status][coveralls-img]][coveralls-url] [![dependency status][david-img]][david-url]
 
@@ -16,12 +16,12 @@ npm i async-base-iterator --save
 const asyncBaseIterator = require('async-base-iterator')
 ```
 
-### [AsyncBaseIterator](index.js#L42)
-> Initialize `AsyncBaseIterator` with `options`.
+### [AsyncBaseIterator](index.js#L43)
+> Initialize `AsyncBaseIterator` with `options`, see also [async-simple-iterator][].
 
 **Params**
 
-* `options` **{Object=}**: pass `beforeEach` and `afterEach` hooks or `settle`.    
+* `options` **{Object=}**: Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.    
 
 **Example**
 
@@ -33,7 +33,7 @@ var base = new AsyncBaseIterator({ settle: true })
 base.on('beforeEach', function (fn) {
   console.log('before each:', fn.name)
 })
-base.on('afterEach', function (fn, err, res) {
+base.on('afterEach', function (err, res, fn) {
   console.log('after each:', fn.name)
   console.log('err?', err)
   console.log('result of', fn.name, 'is', res)
@@ -46,19 +46,18 @@ ctrl.mapSeries([
 ], base.makeIterator(), console.log) // => [1, 2, 3]
 ```
 
-### [.makeIterator](index.js#L105)
+### [.makeIterator](index.js#L94)
 > Make iterator to be passed to [async][] lib.
 
 **Params**
 
-* `options` **{Object=}**: pass `beforeEach` and `afterEach` hooks or `settle`.    
-* `returns` **{Function}**: iterator for `async.map` and `async.mapSeries`.  
+* `options` **{Object=}**: Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.    
+* `returns` **{Function}**: iterator that can be passed to any [async][] method.  
 
 **Events**
-
-* `beforeEach` with signature `fn, context, base`  
-* `afterEach` with signature `fn, err, res`  
-* `error` with signature `err, fn`  
+* `emits`: `beforeEach` with signature `fn, next`  
+* `emits`: `afterEach` with signature `err, res, fn, next`  
+* `emits`: `error` with signature `err, res, fn, next`  
 
 **Example**
 
@@ -92,11 +91,13 @@ ctrl.mapSeries([
 
 ## Related
 * [async](https://www.npmjs.com/package/async): Higher-order functions and common patterns for asynchronous code | [homepage](https://github.com/caolan/async)
+* [async-control](https://www.npmjs.com/package/async-control): Ultimate asynchronous control flow goodness with built-in hook system and compose, series, define and parallel methods. Uses async.map and async.mapSeries methods. Allows passing custom iterator function. | [homepage](https://github.com/hybridables/async-control)
+* [async-simple-iterator](https://www.npmjs.com/package/async-simple-iterator): Making simple iterator for [async][] lib that adds support for settling (continue iteration after first error) and beforeEach/afterEach/error hooks. It also emits `beforeEach`, `afterEach` and `error` events. | [homepage](https://github.com/tunnckocore/async-simple-iterator)
 * [iterator-async](https://www.npmjs.com/package/iterator-async): Iterate over a stack of async functions. | [homepage](https://github.com/doowb/iterator-async)
 * [iterator-promise](https://www.npmjs.com/package/iterator-promise): Iterate over a stack of functions. | [homepage](https://github.com/doowb/iterator-promise)
-* [letta](https://www.npmjs.com/package/letta): Let's move to promises! Drop-in replacement for `co@4` (passing 100% tests),… [more](https://www.npmjs.com/package/letta) | [homepage](https://github.com/hybridables/letta)
-* [relike](https://www.npmjs.com/package/relike): Simple promisify a callback-style function with sane defaults. Support promisify-ing sync… [more](https://www.npmjs.com/package/relike) | [homepage](https://github.com/hybridables/relike)
-* [then-callback](https://www.npmjs.com/package/then-callback): Wrap a promise to allow passing callback to `.then` of given… [more](https://www.npmjs.com/package/then-callback) | [homepage](https://github.com/hybridables/then-callback)
+* [letta](https://www.npmjs.com/package/letta): Let's move to promises! Drop-in replacement for `co@4` (passing 100% tests), but on steroids. Accepts sync, async and generator functions. | [homepage](https://github.com/hybridables/letta)
+* [relike](https://www.npmjs.com/package/relike): Simple promisify a callback-style function with sane defaults. Support promisify-ing sync functions. | [homepage](https://github.com/hybridables/relike)
+* [then-callback](https://www.npmjs.com/package/then-callback): Wrap a promise to allow passing callback to `.then` of given promise, also works as normal `.then` | [homepage](https://github.com/hybridables/then-callback)
 
 ## Contributing
 Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/tunnckoCore/async-base-iterator/issues/new).  
@@ -108,6 +109,7 @@ But before doing anything, please read the [CONTRIBUTING.md](./CONTRIBUTING.md) 
 
 [async]: https://github.com/caolan/async
 [async-control]: https://github.com/hybridables/async-control
+[async-simple-iterator]: https://github.com/tunnckocore/async-simple-iterator
 
 [npmjs-url]: https://www.npmjs.com/package/async-base-iterator
 [npmjs-img]: https://img.shields.io/npm/v/async-base-iterator.svg?label=async-base-iterator
