@@ -24,8 +24,7 @@ require = utils // eslint-disable-line no-undef, no-native-reassign
  * Lazily required module dependencies
  */
 
-require('component-emitter', 'Emitter')
-require('extend-shallow', 'extend')
+require('async-simple-iterator', 'base')
 require('isarray', 'isArray')
 require('relike')
 require('then-callback', 'then')
@@ -35,30 +34,6 @@ require('then-callback', 'then')
  */
 
 require = fn // eslint-disable-line no-undef, no-native-reassign
-
-utils.iteratorFactory = function iteratorFactory (self) {
-  var options = self.options
-  var context = options.context || self
-  var params = utils.isArray(options.params) && options.params || []
-
-  return function iterator (fn, next) {
-    self.emit('beforeEach', fn, context, self)
-
-    var func = options.letta && typeof options.letta === 'function' ? options.letta : utils.relike
-    var done = function done (err, res) {
-      self.emit('afterEach', fn, err, res)
-      if (err instanceof Error) {
-        self.emit('error', err, fn)
-        return options.settle ? next(null, err) : next(err)
-      }
-      next(null, res)
-    }
-
-    var args = [fn].concat(params)
-    args.push(done)
-    utils.then(func.apply(context, args)).then(done)
-  }
-}
 
 /**
  * Expose `utils` modules

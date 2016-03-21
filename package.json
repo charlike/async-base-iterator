@@ -1,7 +1,7 @@
 {
   "name": "async-base-iterator",
   "version": "0.2.1",
-  "description": "Basic iterator for [async][] library that handles asynchronous and synchronous functions, also emits `beforeEach` and `afterEach` events. Used in [async-control][].",
+  "description": "Basic iterator for [async][] library that handles async and synchronous functions, also emits `beforeEach`, `afterEach` and `error` events. Using [async-simple-iterator][] and used in [async-control][].",
   "repository": "tunnckoCore/async-base-iterator",
   "author": "Charlike Mike Reagent <@tunnckoCore> (http://www.tunnckocore.tk)",
   "precommit.silent": true,
@@ -11,8 +11,7 @@
     "test": "standard && node test.js"
   },
   "dependencies": {
-    "component-emitter": "^1.2.0",
-    "extend-shallow": "^2.0.1",
+    "async-simple-iterator": "*",
     "isarray": "^1.0.0",
     "lazy-cache": "^1.0.3",
     "relike": "^1.0.3",
@@ -70,7 +69,8 @@
     },
     "reflinks": [
       "async",
-      "async-control"
+      "async-control",
+      "async-simple-iterator"
     ],
     "lint": {
       "reflinks": true

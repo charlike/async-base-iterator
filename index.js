@@ -7,10 +7,11 @@
 
 'use strict'
 
+var util = require('util')
 var utils = require('./utils')
 
 /**
- * > Initialize `AsyncBaseIterator` with `options`.
+ * > Initialize `AsyncBaseIterator` with `options`, see also [async-simple-iterator][].
  *
  * **Example**
  *
@@ -22,7 +23,7 @@ var utils = require('./utils')
  * base.on('beforeEach', function (fn) {
  *   console.log('before each:', fn.name)
  * })
- * base.on('afterEach', function (fn, err, res) {
+ * base.on('afterEach', function (err, res, fn) {
  *   console.log('after each:', fn.name)
  *   console.log('err?', err)
  *   console.log('result of', fn.name, 'is', res)
@@ -35,30 +36,18 @@ var utils = require('./utils')
  * ], base.makeIterator(), console.log) // => [1, 2, 3]
  * ```
  *
- * @param {Object=} `options` pass `beforeEach` and `afterEach` hooks or `settle`.
+ * @param {Object=} `options` Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.
  * @api public
  */
 function AsyncBaseIterator (options) {
   if (!(this instanceof AsyncBaseIterator)) {
     return new AsyncBaseIterator(options)
   }
-  this.defaultOptions(options)
-  utils.Emitter(this)
+  utils.base.AsyncSimpleIterator.call(this, options)
+  this.defaultOptions({context: {}})
 }
 
-/**
- * > Setting default options. Default `settle` options is `false`.
- *
- * @param  {Object=} `options` pass `beforeEach` and `afterEach` hooks or `settle`.
- * @return {AsyncBaseIterator} instance for chaining.
- * @api private
- */
-AsyncBaseIterator.prototype.defaultOptions = function defaultOptions (options) {
-  options = utils.extend({settle: false, context: {}}, this.options, options)
-  options.settle = typeof options.settle === 'boolean' ? !!options.settle : false
-  this.options = options
-  return this
-}
+util.inherits(AsyncBaseIterator, utils.base.AsyncSimpleIterator)
 
 /**
  * > Make iterator to be passed to [async][] lib.
@@ -93,30 +82,38 @@ AsyncBaseIterator.prototype.defaultOptions = function defaultOptions (options) {
  * })
  * ```
  *
- * @emit  `beforeEach` with signature `fn, context, base`
- * @emit  `afterEach` with signature `fn, err, res`
- * @emit  `error` with signature `err, fn`
+ * @emit  `beforeEach` with signature `fn, next`
+ * @emit  `afterEach` with signature `err, res, fn, next`
+ * @emit  `error` with signature `err, res, fn, next`
  *
- * @param  {Object=} `options` pass `beforeEach` and `afterEach` hooks or `settle`.
- * @return {Function} iterator for `async.map` and `async.mapSeries`.
+ * @param  {Object=} `options` Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.
+ * @return {Function} iterator that can be passed to any [async][] method.
  * @api public
  */
+
 AsyncBaseIterator.prototype.makeIterator = function makeIterator (options) {
-  options = utils.extend(this.options, options)
-
-  if (typeof options.beforeEach === 'function') {
-    this.on('beforeEach', options.beforeEach)
-  }
-  if (typeof options.afterEach === 'function') {
-    this.on('afterEach', options.afterEach)
-  }
-
-  return utils.iteratorFactory(this)
+  return this.wrapIterator(function (fn, next) {
+    var params = utils.isArray(this.options.params) && this.options.params || []
+    var args = params.concat(next)
+    var func = typeof this.options.letta === 'function' ? this.options.letta : utils.relike
+    utils.then(func.apply(this.options.context, [fn].concat(args))).then(next)
+  }, options)
 }
 
 /**
- * Expose `AsyncBaseIterator` constructor and instance
+ * Expose `AsyncBaseIterator` instance
+ *
+ * @type {Object}
+ * @api private
  */
 
 module.exports = new AsyncBaseIterator()
+
+/**
+ * Expose `AsyncBaseIterator` constructor
+ *
+ * @type {Function}
+ * @api private
+ */
+
 module.exports.AsyncBaseIterator = AsyncBaseIterator

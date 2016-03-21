@@ -100,7 +100,7 @@ test('should be able to pass hooks through options', function (done) {
   function beforeEach (fn) {
     functions.push(fn)
   }
-  function afterEach (fn, er, res) {
+  function afterEach (er, res, fn) {
     results.push(res)
   }
 
