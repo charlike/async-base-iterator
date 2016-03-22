@@ -12,7 +12,8 @@
 var test = require('assertit')
 var base = require('./index')
 var Ctor = require('./index').AsyncBaseIterator
-var asyn = require('async')
+var ctrl = require('async')
+var isEmitter = require('is-emitter')
 
 /**
  * Fixtures
@@ -34,6 +35,20 @@ function three () {
 var fns = [one, two, three]
 
 /**
+ * Hooks
+ */
+
+var results = []
+var values = []
+
+function beforeEach (val) {
+  values.push(val)
+}
+function afterEach (er, res) {
+  results.push(res)
+}
+
+/**
  * Tests
  */
 
@@ -43,6 +58,39 @@ test('should exposed constructor be signleton', function (done) {
   done()
 })
 
+test('should be event emitter', function (done) {
+  var app = new Ctor()
+  test.strictEqual(isEmitter(base), true)
+  test.strictEqual(isEmitter(app), true)
+  done()
+})
+
+test('should emit beforeEach/afterEach and listen through `options`', function (done) {
+  var opts = {
+    beforeEach: beforeEach,
+    afterEach: afterEach
+  }
+  ctrl.mapSeries(fns, base.makeIterator(opts), function (err, res) {
+    test.ifError(err)
+    test.deepEqual(res, ['bar', 'baz', 'qux'])
+    test.deepEqual(results, ['bar', 'baz', 'qux'])
+    test.deepEqual(values, fns)
+    results = []
+    values = []
+    done()
+  })
+})
+
+test('should emit beforeEach/afterEach and listen with `base.on` ', function (done) {
+  var app = new Ctor()
+  app.on('beforeEach', beforeEach).on('afterEach', afterEach)
+  ctrl.mapSeries(fns, app.makeIterator(), function () {
+    test.deepEqual(results, ['bar', 'baz', 'qux'])
+    test.deepEqual(values, fns)
+    done()
+  })
+})
+
 test('should async.mapSeries be settled', function (done) {
   var iterator = base.makeIterator({settle: true})
 
@@ -50,18 +98,14 @@ test('should async.mapSeries be settled', function (done) {
     throw new Error('two err')
   }
 
-  asyn.mapSeries([
-    function one () {
-      return 1
-    },
+  ctrl.mapSeries([
+    function one () { return 1 },
     function two () {
       throwError()
       /* istanbul ignore next */
       return 2
     },
-    function three (cb) {
-      cb(null, 3)
-    }
+    function three (cb) { cb(null, 3) }
   ], iterator, function (err, res) {
     test.strictEqual(err, null)
     test.strictEqual(res.length, 3)
@@ -74,7 +118,7 @@ test('should async.mapSeries be settled', function (done) {
 })
 
 test('should functions share context', function (done) {
-  asyn.mapSeries(fns, base.makeIterator(), function (err, res) {
+  ctrl.mapSeries(fns, base.makeIterator(), function (err, res) {
     test.ifError(err)
     test.deepEqual(res, ['bar', 'baz', 'qux'])
     done()
@@ -86,7 +130,7 @@ test('should listen for beforeEach events', function (done) {
   base.on('beforeEach', function (fn) {
     res.push(fn)
   })
-  asyn.mapSeries(fns, base.makeIterator(), function (err) {
+  ctrl.mapSeries(fns, base.makeIterator(), function (err) {
     test.ifError(err)
     test.deepEqual(res, fns)
     done()
@@ -109,7 +153,7 @@ test('should be able to pass hooks through options', function (done) {
     afterEach: afterEach
   })
 
-  asyn.mapSeries(fns, iterator, function (err) {
+  ctrl.mapSeries(fns, iterator, function (err) {
     test.ifError(err)
     test.deepEqual(functions, fns)
     test.deepEqual(results, ['bar', 'baz', 'qux'])
