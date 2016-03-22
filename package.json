@@ -11,7 +11,7 @@
     "test": "standard && node test.js"
   },
   "dependencies": {
-    "async-simple-iterator": "*",
+    "async-simple-iterator": "^0.1.0",
     "isarray": "^1.0.0",
     "lazy-cache": "^1.0.3",
     "relike": "^1.0.3",

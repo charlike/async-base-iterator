@@ -7,8 +7,8 @@
 
 'use strict'
 
-var util = require('util')
 var utils = require('./utils')
+var AppBase = require('async-simple-iterator').AsyncSimpleIterator
 
 /**
  * > Initialize `AsyncBaseIterator` with `options`, see also [async-simple-iterator][].
@@ -39,15 +39,16 @@ var utils = require('./utils')
  * @param {Object=} `options` Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.
  * @api public
  */
+
 function AsyncBaseIterator (options) {
   if (!(this instanceof AsyncBaseIterator)) {
     return new AsyncBaseIterator(options)
   }
-  utils.base.AsyncSimpleIterator.call(this, options)
+  AppBase.call(this, options)
   this.defaultOptions({context: {}})
 }
 
-util.inherits(AsyncBaseIterator, utils.base.AsyncSimpleIterator)
+AppBase.extend(AsyncBaseIterator)
 
 /**
  * > Make iterator to be passed to [async][] lib.
@@ -86,19 +87,20 @@ util.inherits(AsyncBaseIterator, utils.base.AsyncSimpleIterator)
  * @emit  `afterEach` with signature `err, res, fn, next`
  * @emit  `error` with signature `err, res, fn, next`
  *
+ * @name   .makeIterator
  * @param  {Object=} `options` Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.
  * @return {Function} iterator that can be passed to any [async][] method.
  * @api public
  */
 
-AsyncBaseIterator.prototype.makeIterator = function makeIterator (options) {
+AppBase.define(AsyncBaseIterator.prototype, 'makeIterator', function makeIterator (options) {
   return this.wrapIterator(function (fn, next) {
     var params = utils.isArray(this.options.params) && this.options.params || []
     var args = params.concat(next)
     var func = typeof this.options.letta === 'function' ? this.options.letta : utils.relike
     utils.then(func.apply(this.options.context, [fn].concat(args))).then(next)
   }, options)
-}
+})
 
 /**
  * Expose `AsyncBaseIterator` instance

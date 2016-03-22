@@ -46,7 +46,7 @@ ctrl.mapSeries([
 ], base.makeIterator(), console.log) // => [1, 2, 3]
 ```
 
-### [.makeIterator](index.js#L94)
+### [.makeIterator](index.js#L96)
 > Make iterator to be passed to [async][] lib.
 
 **Params**

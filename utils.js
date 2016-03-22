@@ -24,7 +24,6 @@ require = utils // eslint-disable-line no-undef, no-native-reassign
  * Lazily required module dependencies
  */
 
-require('async-simple-iterator', 'base')
 require('isarray', 'isArray')
 require('relike')
 require('then-callback', 'then')
