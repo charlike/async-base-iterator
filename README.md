@@ -13,10 +13,12 @@ npm i async-base-iterator --save
 > For more use-cases see the [tests](./test.js)
 
 ```js
-const asyncBaseIterator = require('async-base-iterator')
+var base = require('async-base-iterator')
+// or get constructor
+var AsyncBaseIterator = require('async-base-iterator').AsyncBaseIterator
 ```
 
-### [AsyncBaseIterator](index.js#L43)
+### [AsyncBaseIterator](index.js#L48)
 > Initialize `AsyncBaseIterator` with `options`, see also [async-simple-iterator][].
 
 **Params**
@@ -28,11 +30,16 @@ const asyncBaseIterator = require('async-base-iterator')
 ```js
 var ctrl = require('async')
 var AsyncBaseIterator = require('async-base-iterator').AsyncBaseIterator
-var base = new AsyncBaseIterator({ settle: true })
-
-base.on('beforeEach', function (fn) {
-  console.log('before each:', fn.name)
+var base = new AsyncBaseIterator({
+  beforeEach: function (fn) {
+    console.log('before each:', fn.name)
+  },
+  error: function (err, res, fn) {
+    console.log('on error:err:', err)
+    console.log('on error:fn:', fn.name)
+  }
 })
+
 base.on('afterEach', function (err, res, fn) {
   console.log('after each:', fn.name)
   console.log('err?', err)
@@ -46,13 +53,13 @@ ctrl.mapSeries([
 ], base.makeIterator(), console.log) // => [1, 2, 3]
 ```
 
-### [.makeIterator](index.js#L96)
+### [.makeIterator](index.js#L101)
 > Make iterator to be passed to [async][] lib.
 
 **Params**
 
 * `options` **{Object=}**: Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.    
-* `returns` **{Function}**: iterator that can be passed to any [async][] method.  
+* `returns` **{Function}**: Iterator that can be passed to any [async][] method.  
 
 **Events**
 * `emits`: `beforeEach` with signature `fn, next`  
@@ -66,8 +73,8 @@ var ctrl = require('async')
 var base = require('async-base-iterator')
 var iterator = base.makeIterator({
   settle: true,
-  beforeEach: function beforeEach (fn) {
-    console.log(fn)
+  beforeEach: function (fn) {
+    console.log('before each:', fn.name)
   }
 })
 

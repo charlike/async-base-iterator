@@ -18,11 +18,16 @@ var AppBase = require('async-simple-iterator').AsyncSimpleIterator
  * ```js
  * var ctrl = require('async')
  * var AsyncBaseIterator = require('async-base-iterator').AsyncBaseIterator
- * var base = new AsyncBaseIterator({ settle: true })
- *
- * base.on('beforeEach', function (fn) {
- *   console.log('before each:', fn.name)
+ * var base = new AsyncBaseIterator({
+ *   beforeEach: function (fn) {
+ *     console.log('before each:', fn.name)
+ *   },
+ *   error: function (err, res, fn) {
+ *     console.log('on error:err:', err)
+ *     console.log('on error:fn:', fn.name)
+ *   }
  * })
+ *
  * base.on('afterEach', function (err, res, fn) {
  *   console.log('after each:', fn.name)
  *   console.log('err?', err)
@@ -60,8 +65,8 @@ AppBase.extend(AsyncBaseIterator)
  * var base = require('async-base-iterator')
  * var iterator = base.makeIterator({
  *   settle: true,
- *   beforeEach: function beforeEach (fn) {
- *     console.log(fn)
+ *   beforeEach: function (fn) {
+ *     console.log('before each:', fn.name)
  *   }
  * })
  *
@@ -89,7 +94,7 @@ AppBase.extend(AsyncBaseIterator)
  *
  * @name   .makeIterator
  * @param  {Object=} `options` Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.
- * @return {Function} iterator that can be passed to any [async][] method.
+ * @return {Function} Iterator that can be passed to any [async][] method.
  * @api public
  */
 
