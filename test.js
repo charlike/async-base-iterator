@@ -65,22 +65,6 @@ test('should be event emitter', function (done) {
   done()
 })
 
-test('should emit beforeEach/afterEach and listen through `options`', function (done) {
-  var opts = {
-    beforeEach: beforeEach,
-    afterEach: afterEach
-  }
-  ctrl.mapSeries(fns, base.makeIterator(opts), function (err, res) {
-    test.ifError(err)
-    test.deepEqual(res, ['bar', 'baz', 'qux'])
-    test.deepEqual(results, ['bar', 'baz', 'qux'])
-    test.deepEqual(values, fns)
-    results = []
-    values = []
-    done()
-  })
-})
-
 test('should emit beforeEach/afterEach and listen with `base.on` ', function (done) {
   var app = new Ctor()
   app.on('beforeEach', beforeEach).on('afterEach', afterEach)
