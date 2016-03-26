@@ -18,7 +18,9 @@ var base = require('async-base-iterator')
 var AsyncBaseIterator = require('async-base-iterator').AsyncBaseIterator
 ```
 
-### [AsyncBaseIterator](index.js#L48)
+## API
+
+### [AsyncBaseIterator](index.js#L52)
 > Initialize `AsyncBaseIterator` with `options`, see also [async-simple-iterator][].
 
 **Params**
@@ -30,30 +32,34 @@ var AsyncBaseIterator = require('async-base-iterator').AsyncBaseIterator
 ```js
 var ctrl = require('async')
 var AsyncBaseIterator = require('async-base-iterator').AsyncBaseIterator
+
+var fs = require('fs')
 var base = new AsyncBaseIterator({
+  settle: true,
   beforeEach: function (fn) {
     console.log('before each:', fn.name)
   },
   error: function (err, res, fn) {
-    console.log('on error:err:', err)
-    console.log('on error:fn:', fn.name)
+    console.log('on error:', fn.name)
   }
 })
-
-base.on('afterEach', function (err, res, fn) {
-  console.log('after each:', fn.name)
-  console.log('err?', err)
-  console.log('result of', fn.name, 'is', res)
+var iterator = base.makeIterator({
+  afterEach: function (err, res, fn) {
+    console.log('after each:', err, res, fn.name)
+  }
 })
 
 ctrl.mapSeries([
   function one () { return 1 },
   function two (done) { done(null, 2) },
   function three () { return 3 },
-], base.makeIterator(), console.log) // => [1, 2, 3]
+], iterator, function (err, results) {
+  // => `err` will always be null, if `settle:true`
+  // => `results` is [1, 2, 3]
+})
 ```
 
-### [.makeIterator](index.js#L101)
+### [.makeIterator](index.js#L114)
 > Make iterator to be passed to [async][] lib.
 
 **Params**
@@ -70,7 +76,16 @@ ctrl.mapSeries([
 
 ```js
 var ctrl = require('async')
-var base = require('async-base-iterator')
+var base = require('async-simple-iterator')
+
+base
+  .on('afterEach', function (err, res, fn) {
+    console.log('after each:', err, res, fn.name)
+  })
+  .on('error', function (err, res, fn) {
+    console.log('on error:', err, res, fn.name)
+  })
+
 var iterator = base.makeIterator({
   settle: true,
   beforeEach: function (fn) {
