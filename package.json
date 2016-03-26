@@ -1,6 +1,6 @@
 {
   "name": "async-base-iterator",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Basic iterator for [async][] library that handles async and synchronous functions, also emits `beforeEach`, `afterEach` and `error` events. Using [async-simple-iterator][] and used in [async-control][].",
   "repository": "tunnckoCore/async-base-iterator",
   "author": "Charlike Mike Reagent <@tunnckoCore> (http://www.tunnckocore.tk)",
