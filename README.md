@@ -114,7 +114,7 @@ ctrl.mapSeries([
 ## Related
 * [async](https://www.npmjs.com/package/async): Higher-order functions and common patterns for asynchronous code | [homepage](https://github.com/caolan/async)
 * [async-control](https://www.npmjs.com/package/async-control): Ultimate asynchronous control flow goodness with built-in hook system and compose, series, define and parallel methods. Uses async.map and async.mapSeries methods. Allows passing custom iterator function. | [homepage](https://github.com/hybridables/async-control)
-* [async-simple-iterator](https://www.npmjs.com/package/async-simple-iterator): Making simple iterator for [async][] lib that adds support for settling (continue iteration after first error) and beforeEach/afterEach/error hooks. It also emits `beforeEach`, `afterEach` and `error` events. | [homepage](https://github.com/tunnckocore/async-simple-iterator)
+* [async-simple-iterator](https://www.npmjs.com/package/async-simple-iterator): Making simple iterator for [async][] lib that adds beforeEach, afterEach, error hooks and support for settling. It also emits `beforeEach`, `afterEach` and `error` events. | [homepage](https://github.com/tunnckocore/async-simple-iterator)
 * [iterator-async](https://www.npmjs.com/package/iterator-async): Iterate over a stack of async functions. | [homepage](https://github.com/doowb/iterator-async)
 * [iterator-promise](https://www.npmjs.com/package/iterator-promise): Iterate over a stack of functions. | [homepage](https://github.com/doowb/iterator-promise)
 * [letta](https://www.npmjs.com/package/letta): Let's move to promises! Drop-in replacement for `co@4` (passing 100% tests), but on steroids. Accepts sync, async and generator functions. | [homepage](https://github.com/hybridables/letta)
@@ -129,8 +129,8 @@ But before doing anything, please read the [CONTRIBUTING.md](./CONTRIBUTING.md) 
 
 [![tunnckoCore.tk][author-www-img]][author-www-url] [![keybase tunnckoCore][keybase-img]][keybase-url] [![tunnckoCore npm][author-npm-img]][author-npm-url] [![tunnckoCore twitter][author-twitter-img]][author-twitter-url] [![tunnckoCore github][author-github-img]][author-github-url]
 
-[async]: https://github.com/caolan/async
 [async-control]: https://github.com/hybridables/async-control
+[async]: https://github.com/caolan/async
 [async-simple-iterator]: https://github.com/tunnckocore/async-simple-iterator
 
 [npmjs-url]: https://www.npmjs.com/package/async-base-iterator
