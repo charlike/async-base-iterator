@@ -106,7 +106,7 @@ AppBase.extend(AsyncBaseIterator)
  * @emit  `error` with signature `err, res, fn, next`
  *
  * @name   .makeIterator
- * @param  {Object=} `options` Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.
+ * @param  {Object=} `[options]` Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.
  * @return {Function} Iterator that can be passed to any [async][] method.
  * @api public
  */
@@ -134,12 +134,36 @@ AppBase.define(AsyncBaseIterator.prototype, 'makeIterator', function makeIterato
 })
 
 /**
- * > Helper / wrapper for final done callback.
+ * > Helper, wrapper function. Use it to wrap you final
+ * callback function which you pass to [async][] lib.
+ * This may be needed if you want to catch if error happens in
+ * the final callback function, because actually it is
+ * executed in promise as the other functions in stack.
+ * There's just no other way to handle errors from final callback,
+ * it is rare case, but sometimes it may be needed. Be aware of that.
+ *
+ * **Example**
+ *
+ * ```js
+ * var base = require('async-base-iterator')
+ * var ctrl = require('async')
+ * var assert = require('assert')
+ *
+ * ctrl.mapSeries([function () {
+ *   return 123
+ * }], base.makeIterator(), base.doneCallback(function (err, res) {
+ *   console.log(err) // => null
+ *   console.log(res) // => 123
+ *   assert.strictEqual(res, 555) // intentionally
+ * }, function (err) {
+ *   console.log(err) // => AssertionError
+ * }))
+ * ```
  *
  * @name   .doneCallback
- * @param  {Function} `fn`
- * @param  {Function} `done`
- * @return {Function}
+ * @param  {Function} `<fn>` called with arguments passed to the returned callback
+ * @param  {Function=} `[done]` optional
+ * @return {Function} callback function that you can pass to [async][] methods
  * @api public
  */
 

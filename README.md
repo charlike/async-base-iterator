@@ -64,7 +64,7 @@ ctrl.mapSeries([
 
 **Params**
 
-* `options` **{Object=}**: Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.    
+* `[options]` **{Object=}**: Pass `beforeEach`, `afterEach` and `error` hooks or `settle` option.    
 * `returns` **{Function}**: Iterator that can be passed to any [async][] method.  
 
 **Events**
@@ -111,6 +111,33 @@ ctrl.mapSeries([
 })
 ```
 
+### [.doneCallback](index.js#L170)
+> Helper, wrapper function. Use it to wrap you final callback function which you pass to [async][] lib. This may be needed if you want to catch if error happens in the final callback function, because actually it is executed in promise as the other functions in stack. There's just no other way to handle errors from final callback, it is rare case, but sometimes it may be needed. Be aware of that.
+
+**Params**
+
+* `<fn>` **{Function}**: called with arguments passed to the returned callback    
+* `[done]` **{Function=}**: optional    
+* `returns` **{Function}**: callback function that you can pass to [async][] methods  
+
+**Example**
+
+```js
+var base = require('async-base-iterator')
+var ctrl = require('async')
+var assert = require('assert')
+
+ctrl.mapSeries([function () {
+  return 123
+}], base.makeIterator(), base.doneCallback(function (err, res) {
+  console.log(err) // => null
+  console.log(res) // => 123
+  assert.strictEqual(res, 555) // intentionally
+}, function (err) {
+  console.log(err) // => AssertionError
+}))
+```
+
 ## Related
 * [async](https://www.npmjs.com/package/async): Higher-order functions and common patterns for asynchronous code | [homepage](https://github.com/caolan/async)
 * [async-control](https://www.npmjs.com/package/async-control): Ultimate asynchronous control flow goodness with built-in hook system and compose, series, define and parallel methods. Uses async.map and async.mapSeries methods. Allows passing custom iterator function. | [homepage](https://github.com/hybridables/async-control)
@@ -129,8 +156,8 @@ But before doing anything, please read the [CONTRIBUTING.md](./CONTRIBUTING.md) 
 
 [![tunnckoCore.tk][author-www-img]][author-www-url] [![keybase tunnckoCore][keybase-img]][keybase-url] [![tunnckoCore npm][author-npm-img]][author-npm-url] [![tunnckoCore twitter][author-twitter-img]][author-twitter-url] [![tunnckoCore github][author-github-img]][author-github-url]
 
-[async-control]: https://github.com/hybridables/async-control
 [async]: https://github.com/caolan/async
+[async-control]: https://github.com/hybridables/async-control
 [async-simple-iterator]: https://github.com/tunnckocore/async-simple-iterator
 
 [npmjs-url]: https://www.npmjs.com/package/async-base-iterator
