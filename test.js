@@ -112,6 +112,7 @@ test('should `settle` option work correctly', function (done) {
       if (Object.keys(this).length === 0) {
         throw new Error('foo err here')
       }
+      /* istanbul ignore next */
       return 123
     },
     function (next) {
