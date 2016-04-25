@@ -61,12 +61,14 @@ test('should functions share context', function (done) {
   })
 })
 
-test('should be able to pass params to functions through options.params', function (done) {
-  var iterator = base.makeIterator({
+test('should be able to pass params to functions through `options.params`', function (done) {
+  var app = new Ctor()
+  var iterator = app.makeIterator({
     params: [{bar: 'qux'}, 3]
   })
   ctrl.mapSeries([
     function one (obj, num) {
+      test.deepEqual(this, {})
       test.deepEqual(obj, {bar: 'qux'})
       test.strictEqual(num, 3)
       return obj
@@ -80,5 +82,95 @@ test('should be able to pass params to functions through options.params', functi
     test.ifError(err)
     test.deepEqual(res, [{bar: 'qux'}, 3])
     done()
+  })
+})
+
+test('should be able to pass custom context through `options.context`', function (done) {
+  var app = new Ctor()
+  var iterator = app.on('error', done).makeIterator({
+    context: {aloha: 'ok'}
+  })
+  ctrl.mapSeries([function (next) {
+    test.deepEqual(this, {aloha: 'ok'})
+    next()
+  }], iterator, done)
+})
+
+test('should `settle` option work correctly', function (done) {
+  var app = new Ctor()
+  var iterator = app.makeIterator({ settle: true })
+
+  ctrl.mapSeries([
+    function asyncFnOkey (next) {
+      test.deepEqual(this, {})
+      next()
+    },
+    function asyncFnFail (next) {
+      next(new Error('some err msg'))
+    },
+    function syncFnFail () {
+      if (Object.keys(this).length === 0) {
+        throw new Error('foo err here')
+      }
+      return 123
+    },
+    function (next) {
+      next(null, 4)
+    }
+  ], iterator, function (err, res) {
+    test.strictEqual(err, null)
+    test.strictEqual(Array.isArray(res), true)
+    test.strictEqual(res.length, 4)
+    test.strictEqual(res[0], undefined)
+    test.strictEqual(res[1] instanceof Error, true)
+    test.strictEqual(res[2] instanceof Error, true)
+    test.strictEqual(res[1].message, 'some err msg')
+    test.strictEqual(res[2].message, 'foo err here')
+    test.strictEqual(res[3], 4)
+    done()
+  })
+})
+
+test('should support nesting', function (done) {
+  var app = new Ctor({
+    context: {a: 'b'},
+    params: ['foo', 123]
+  })
+
+  ctrl.mapSeries([
+    function (foo, num) {
+      test.strictEqual(foo, 'foo')
+      test.strictEqual(num, 123)
+      test.deepEqual(this, {a: 'b'})
+      this.one = 111
+
+      return function (foo, num) {
+        test.strictEqual(foo, 'foo')
+        test.strictEqual(num, 123)
+        test.deepEqual(this, { a: 'b', one: 111 })
+        this.two = 222
+
+        return function (str, num, next) {
+          test.strictEqual(str, 'foo')
+          test.strictEqual(num, 123)
+          test.deepEqual(this, { a: 'b', one: 111, two: 222 })
+          this.a = str
+
+          next(null, {first: str, second: this.two + num})
+        }
+      }
+    },
+    function (str) {
+      test.deepEqual(this, { a: 'foo', one: 111, two: 222 })
+      this.three = 333
+
+      return function (a, num) {
+        test.deepEqual(this, { a: str, one: 111, two: 222, three: 333 })
+        return this.three + num + str
+      }
+    }
+  ], app.makeIterator(), function doneCallback (err, res) {
+    test.deepEqual(res, [{ first: 'foo', second: 345 }, '456foo'])
+    done(err)
   })
 })

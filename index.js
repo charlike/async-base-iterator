@@ -113,10 +113,23 @@ AppBase.extend(AsyncBaseIterator)
 
 AppBase.define(AsyncBaseIterator.prototype, 'makeIterator', function makeIterator (options) {
   return this.wrapIterator(function (fn, next) {
-    var params = utils.isArray(this.options.params) && this.options.params || []
-    var args = params.concat(next)
+    var context = this.options.context
+    var params = (utils.isArray(this.options.params) && this.options.params || []).concat(next)
     var func = typeof this.options.letta === 'function' ? this.options.letta : utils.relike
-    utils.then(func.apply(this.options.context, [fn].concat(args))).then(next)
+
+    function isFunction (res) {
+      if (typeof res === 'function') {
+        return func.apply(context, [res].concat(params)).then(isFunction)
+      }
+      return res
+    }
+
+    utils
+      .then(func.apply(
+        context,
+        [fn].concat(params)
+      ).then(isFunction))
+      .then(next)
   }, options)
 })
 
