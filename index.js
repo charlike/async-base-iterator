@@ -134,6 +134,28 @@ AppBase.define(AsyncBaseIterator.prototype, 'makeIterator', function makeIterato
 })
 
 /**
+ * > Helper / wrapper for final done callback.
+ *
+ * @name   .doneCallback
+ * @param  {Function} `fn`
+ * @param  {Function} `done`
+ * @return {Function}
+ * @api public
+ */
+
+AppBase.define(AsyncBaseIterator.prototype, 'doneCallback', function doneCallback (fn, done) {
+  var self = this
+  return function () {
+    try {
+      fn.apply(self, arguments)
+    } catch (err) {
+      return done.call(self, err)
+    }
+    done.call(self)
+  }
+})
+
+/**
  * Expose `AsyncBaseIterator` instance
  *
  * @type {Object}

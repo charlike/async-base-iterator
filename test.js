@@ -54,11 +54,11 @@ test('should be AsyncSimpleIterator app and have .wrapIterator method', function
 })
 
 test('should functions share context', function (done) {
-  ctrl.mapSeries(fns, base.makeIterator(), function (err, res) {
+  ctrl.mapSeries(fns, base.makeIterator(), base.doneCallback(function (err, res) {
     test.ifError(err)
     test.deepEqual(res, ['bar', 'baz', 'qux'])
     done()
-  })
+  }, done))
 })
 
 test('should be able to pass params to functions through `options.params`', function (done) {
@@ -78,11 +78,11 @@ test('should be able to pass params to functions through `options.params`', func
       test.strictEqual(num, 3)
       next(null, num)
     }
-  ], iterator, function (err, res) {
+  ], iterator, app.doneCallback(function (err, res) {
     test.ifError(err)
     test.deepEqual(res, [{bar: 'qux'}, 3])
     done()
-  })
+  }, done))
 })
 
 test('should be able to pass custom context through `options.context`', function (done) {
@@ -118,7 +118,7 @@ test('should `settle` option work correctly', function (done) {
     function (next) {
       next(null, 4)
     }
-  ], iterator, function (err, res) {
+  ], iterator, app.doneCallback(function (err, res) {
     test.strictEqual(err, null)
     test.strictEqual(Array.isArray(res), true)
     test.strictEqual(res.length, 4)
@@ -129,7 +129,7 @@ test('should `settle` option work correctly', function (done) {
     test.strictEqual(res[2].message, 'foo err here')
     test.strictEqual(res[3], 4)
     done()
-  })
+  }, done))
 })
 
 test('should support nesting', function (done) {
@@ -170,8 +170,24 @@ test('should support nesting', function (done) {
         return this.three + num + str
       }
     }
-  ], app.makeIterator(), function doneCallback (err, res) {
+  ], app.makeIterator(), app.doneCallback(function doneCallback (err, res) {
+    test.ifError(err)
     test.deepEqual(res, [{ first: 'foo', second: 345 }, '456foo'])
-    done(err)
+    done()
+  }, done))
+})
+
+test('should use `.doneCallback` to create callback and handle errors from it', function (done) {
+  var app = new Ctor()
+  var callback = app.doneCallback(function () {
+    test.deepEqual(this, app)
+    throw new Error('done err')
+  }, function (err) {
+    test.deepEqual(this, app)
+    test.strictEqual(err instanceof Error, true)
+    test.strictEqual(err.message, 'done err')
+    done()
   })
+
+  callback()
 })
